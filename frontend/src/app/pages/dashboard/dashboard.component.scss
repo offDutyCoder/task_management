@@ -17,6 +17,12 @@
   flex: 1;
 }
 
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .section-card {
   margin-bottom: 24px;
 

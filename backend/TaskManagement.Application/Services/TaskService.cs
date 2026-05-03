@@ -11,11 +11,13 @@ public class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;
     private readonly IUserRepository _userRepository;
+    private readonly INotificationService _notificationService;
 
-    public TaskService(ITaskRepository taskRepository, IUserRepository userRepository)
+    public TaskService(ITaskRepository taskRepository, IUserRepository userRepository, INotificationService notificationService)
     {
         _taskRepository = taskRepository;
         _userRepository = userRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<TaskListResponse> GetTasksAsync(TaskFilterQuery filter, int currentUserId)
@@ -81,6 +83,10 @@ public class TaskService : ITaskService
         }
 
         var created = await _taskRepository.CreateAsync(task, request.AssigneeIds, request.LabelIds, shareUserIds);
+
+        if (request.AssigneeIds.Count > 0)
+            await _notificationService.NotifyAssignedAsync(created.Id, created.Title, request.AssigneeIds);
+
         var withSubTasks = await _taskRepository.GetByIdAsync(created.Id, includeSubTasks: true)
             ?? throw new InvalidOperationException("作成したタスクの取得に失敗しました");
 
@@ -93,6 +99,8 @@ public class TaskService : ITaskService
             ?? throw new NotFoundException("タスク", id);
 
         await EnsureReadAccessAsync(task, currentUserId);
+
+        var previousAssigneeIds = task.Assignees.Select(a => a.UserId).ToHashSet();
 
         task.Title = request.Title;
         task.Description = request.Description;
@@ -108,6 +116,11 @@ public class TaskService : ITaskService
                 : [.. request.ShareUserIds, currentUserId];
 
         await _taskRepository.UpdateAsync(task, request.AssigneeIds, request.LabelIds, shareUserIds);
+
+        var newAssigneeIds = request.AssigneeIds.Where(uid => !previousAssigneeIds.Contains(uid)).ToList();
+        if (newAssigneeIds.Count > 0)
+            await _notificationService.NotifyAssignedAsync(id, task.Title, newAssigneeIds);
+
         var updated = await _taskRepository.GetByIdAsync(id, includeSubTasks: true)
             ?? throw new InvalidOperationException("更新したタスクの取得に失敗しました");
 
@@ -142,6 +155,7 @@ public class TaskService : ITaskService
             throw new ConflictException($"ユーザーID {userId} は既に担当者として割り当てられています");
 
         await _taskRepository.AddAssigneeAsync(taskId, userId);
+        await _notificationService.NotifyAssignedAsync(taskId, task.Title, [userId]);
 
         return new AssigneeDto
         {

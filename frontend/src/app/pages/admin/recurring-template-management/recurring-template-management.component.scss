@@ -1,0 +1,40 @@
+mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.status-active {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.status-inactive {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.no-data {
+  color: rgba(0, 0, 0, 0.38);
+  font-style: italic;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: rgba(0, 0, 0, 0.54);
+}

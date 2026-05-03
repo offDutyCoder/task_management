@@ -1,0 +1,55 @@
+<div class="notifications-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>通知</mat-card-title>
+      <div class="header-actions">
+        @if (data().unreadCount > 0) {
+          <button mat-button color="primary" (click)="markAllAsRead()">
+            <mat-icon>done_all</mat-icon>
+            すべて既読にする
+          </button>
+        }
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="40" />
+        </div>
+      } @else if (data().items.length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">notifications_none</mat-icon>
+          <p>通知はありません</p>
+        </div>
+      } @else {
+        <mat-list>
+          @for (notification of data().items; track notification.id) {
+            <mat-list-item
+              class="notification-item"
+              [class.unread]="!notification.isRead"
+              (click)="markAsRead(notification)">
+              <mat-icon matListItemIcon [class.assigned-icon]="notification.type === NotificationType.Assigned"
+                [class.overdue-icon]="notification.type === NotificationType.Overdue">
+                {{ getTypeIcon(notification.type) }}
+              </mat-icon>
+              <div matListItemTitle class="notification-message">{{ notification.message }}</div>
+              <div matListItemLine class="notification-meta">
+                <span class="notification-type">{{ getTypeLabel(notification.type) }}</span>
+                <span class="notification-date">{{ notification.createdAt | date:'yyyy/MM/dd HH:mm' }}</span>
+              </div>
+              @if (notification.taskItemId) {
+                <button mat-icon-button matListItemMeta
+                  (click)="$event.stopPropagation(); navigateToTask(notification.taskItemId)"
+                  aria-label="タスクへ移動">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              }
+            </mat-list-item>
+            <mat-divider />
+          }
+        </mat-list>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

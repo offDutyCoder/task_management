@@ -14,6 +14,12 @@ public class AppDbContext : DbContext
     public DbSet<TaskAssignee> TaskAssignees => Set<TaskAssignee>();
     public DbSet<TaskLabel> TaskLabels => Set<TaskLabel>();
     public DbSet<TaskShare> TaskShares => Set<TaskShare>();
+    public DbSet<LabelRequest> LabelRequests => Set<LabelRequest>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<RecurringTemplate> RecurringTemplates => Set<RecurringTemplate>();
+    public DbSet<RecurringTemplateAssignee> RecurringTemplateAssignees => Set<RecurringTemplateAssignee>();
+    public DbSet<RecurringTemplateLabel> RecurringTemplateLabels => Set<RecurringTemplateLabel>();
+    public DbSet<RecurringTemplateShare> RecurringTemplateShares => Set<RecurringTemplateShare>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

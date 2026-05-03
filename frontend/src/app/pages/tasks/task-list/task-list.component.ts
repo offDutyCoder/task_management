@@ -27,6 +27,7 @@ import { StatusService } from '../../../services/status.service';
 import { LabelService } from '../../../services/label.service';
 import { UserService } from '../../../services/user.service';
 import { TaskFormComponent, TaskFormDialogData } from '../task-form/task-form.component';
+import { LabelRequestDialogComponent } from '../label-request-dialog/label-request-dialog.component';
 
 @Component({
   selector: 'app-task-list',
@@ -183,5 +184,9 @@ export class TaskListComponent implements OnInit {
 
   getAssigneeNames(task: TaskListItem): string {
     return task.assignees.map(a => a.displayName).join(', ') || '—';
+  }
+
+  openLabelRequestDialog(): void {
+    this.dialog.open(LabelRequestDialogComponent, { width: '440px' });
   }
 }

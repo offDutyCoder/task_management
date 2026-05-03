@@ -1,0 +1,30 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+*.vs/
+
+# Angular / Node
+node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/.angular/cache/
+frontend/coverage/
+frontend/.nx/
+
+# .NET build artifacts (deep paths)
+**/bin/
+**/obj/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

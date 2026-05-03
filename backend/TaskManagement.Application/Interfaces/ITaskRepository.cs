@@ -18,4 +18,5 @@ public interface ITaskRepository
     Task<bool> IsShareUserAsync(int taskId, int userId);
     Task AddShareUserAsync(int taskId, int userId);
     Task RemoveShareUserAsync(int taskId, int userId);
+    Task<IEnumerable<TaskItem>> GetOverdueTasksWithAssigneesAsync();
 }

@@ -2,6 +2,10 @@
   <mat-card-header>
     <mat-card-title>タスク一覧</mat-card-title>
     <span class="spacer"></span>
+    <button mat-stroked-button (click)="openLabelRequestDialog()" style="margin-right:8px">
+      <mat-icon>label</mat-icon>
+      ラベルをリクエスト
+    </button>
     <button mat-raised-button color="primary" (click)="openCreateDialog()">
       <mat-icon>add</mat-icon>
       新規タスク

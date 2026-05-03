@@ -1,9 +1,11 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Api.Middleware;
 using TaskManagement.Application.Interfaces;
 using TaskManagement.Application.Services;
 using TaskManagement.Infrastructure.Data;
+using TaskManagement.Infrastructure.Jobs;
 using TaskManagement.Infrastructure.Repositories;
 
 
@@ -14,6 +16,17 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(connectionString));
+    builder.Services.AddHangfireServer();
+}
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -48,6 +61,15 @@ builder.Services.AddScoped<ILabelService, LabelService>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ILabelRequestRepository, LabelRequestRepository>();
+builder.Services.AddScoped<ILabelRequestService, LabelRequestService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<OverdueNotificationJob>();
+builder.Services.AddScoped<IRecurringTemplateRepository, RecurringTemplateRepository>();
+builder.Services.AddScoped<IRecurringTaskService, RecurringTaskService>();
+builder.Services.AddScoped<RecurringTaskJob>();
+builder.Services.AddHostedService<HangfireJobRegistrationService>();
 
 var app = builder.Build();
 
@@ -55,6 +77,14 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
+    {
+        Authorization = [new TaskManagement.Api.Middleware.HangfireAuthorizationFilter()],
+    });
+}
 
 app.MapControllers();
 

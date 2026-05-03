@@ -1,0 +1,42 @@
+.shell-container {
+  height: 100vh;
+}
+
+.shell-sidenav {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidenav-header {
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+}
+
+.notification-bell {
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.sidenav-footer {
+  margin-top: auto;
+  padding: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.logout-button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+mat-nav-list a.active-link {
+  background-color: rgba(0, 0, 0, 0.08);
+}

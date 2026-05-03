@@ -38,6 +38,22 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
   },
   {
+    path: 'admin/label-requests',
+    loadComponent: () =>
+      import('./pages/admin/label-request-management/label-request-management.component').then(
+        m => m.LabelRequestManagementComponent
+      ),
+    canActivate: [authGuard, adminGuard],
+  },
+  {
+    path: 'admin/recurring-templates',
+    loadComponent: () =>
+      import('./pages/admin/recurring-template-management/recurring-template-management.component').then(
+        m => m.RecurringTemplateManagementComponent
+      ),
+    canActivate: [authGuard, adminGuard],
+  },
+  {
     path: 'tasks',
     loadComponent: () =>
       import('./pages/tasks/task-list/task-list.component').then(
@@ -50,6 +66,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/tasks/task-detail/task-detail.component').then(
         m => m.TaskDetailComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then(
+        m => m.NotificationsComponent
       ),
     canActivate: [authGuard],
   },

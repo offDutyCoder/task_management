@@ -1,0 +1,60 @@
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav mode="side" opened class="shell-sidenav">
+    <div class="sidenav-header">
+      <span class="app-title">タスク管理</span>
+      <button mat-icon-button class="notification-bell" (click)="navigateToNotifications()"
+        [matBadge]="unreadCount() > 0 ? unreadCount() : null"
+        matBadgeColor="warn"
+        matBadgeSize="small"
+        aria-label="通知">
+        <mat-icon>notifications</mat-icon>
+      </button>
+    </div>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>ダッシュボード</span>
+      </a>
+      <a mat-list-item routerLink="/tasks" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>task_alt</mat-icon>
+        <span matListItemTitle>タスク一覧</span>
+      </a>
+      <a mat-list-item routerLink="/notifications" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>notifications</mat-icon>
+        <span matListItemTitle>通知</span>
+      </a>
+      @if (isAdmin()) {
+        <mat-divider />
+        <a mat-list-item routerLink="/admin/users" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <span matListItemTitle>ユーザー管理</span>
+        </a>
+        <a mat-list-item routerLink="/admin/statuses" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>tune</mat-icon>
+          <span matListItemTitle>ステータス管理</span>
+        </a>
+        <a mat-list-item routerLink="/admin/labels" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>label</mat-icon>
+          <span matListItemTitle>ラベル管理</span>
+        </a>
+        <a mat-list-item routerLink="/admin/label-requests" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>approval</mat-icon>
+          <span matListItemTitle>ラベルリクエスト</span>
+        </a>
+        <a mat-list-item routerLink="/admin/recurring-templates" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>repeat</mat-icon>
+          <span matListItemTitle>定期タスク管理</span>
+        </a>
+      }
+    </mat-nav-list>
+    <div class="sidenav-footer">
+      <button mat-button class="logout-button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        ログアウト
+      </button>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <ng-content />
+  </mat-sidenav-content>
+</mat-sidenav-container>

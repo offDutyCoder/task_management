@@ -1,9 +1,15 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h1 class="dashboard-title">ダッシュボード</h1>
-    <mat-slide-toggle [checked]="showRecurring()" (change)="onToggleRecurring()">
-      定期タスクを表示
-    </mat-slide-toggle>
+    <div class="dashboard-actions">
+      <button mat-raised-button color="primary" data-testid="create-task-button" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        タスクを作成
+      </button>
+      <mat-slide-toggle [checked]="showRecurring()" (change)="onToggleRecurring()">
+        定期タスクを表示
+      </mat-slide-toggle>
+    </div>
   </div>
 
   @if (isLoading()) {

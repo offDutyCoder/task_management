@@ -265,7 +265,7 @@ src/
 **構造**:
 ```
 .steering/
-└── [YYYYMMDD]-[task-name]/
+└── [task-name]/
     ├── requirements.md      # 今回の作業の要求内容
     ├── design.md            # 変更内容の設計
     └── tasklist.md          # タスクリスト

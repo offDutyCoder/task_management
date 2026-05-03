@@ -335,8 +335,8 @@ SQL Server
 | `StatusesController` | ステータスの管理（管理者のみ） | ✅ |
 | `LabelsController` | ラベルの管理（管理者のみ） | ✅ |
 | `UsersController` | ユーザー管理（管理者のみ） | ✅ |
-| `RecurringTemplatesController` | 定期タスクテンプレートのCRUD | 未実装 |
-| `NotificationsController` | 通知一覧・既読処理 | 未実装 |
+| `RecurringTemplatesController` | 定期タスクテンプレートのCRUD（管理者のみ） | ✅ |
+| `NotificationsController` | 通知一覧・既読処理 | ✅ |
 
 ### サービスクラス一覧
 
@@ -346,10 +346,10 @@ SQL Server
 | `StatusService` | ステータス管理・論理削除時の影響チェック | ✅ |
 | `LabelService` | ラベル管理 | ✅ |
 | `UserService` | アカウント管理・パスワードハッシュ | ✅ |
-| `RecurringTaskService` | テンプレートからのタスク自動生成ロジック | 未実装 |
-| `NotificationService` | 通知生成（担当割当・期限超過） | 未実装 |
+| `RecurringTaskService` | テンプレートCRUD・自動生成ロジック（Hangfire毎分実行） | ✅ |
+| `NotificationService` | 通知生成（担当割当・期限超過） | ✅ |
 
-### 実装済みエンティティ（2026-05-04 時点）
+### 実装済みエンティティ（2026-05-05 時点）
 
 - `User`, `UserRole`
 - `TaskStatus`（HasData シードで初期5件投入）
@@ -358,6 +358,10 @@ SQL Server
 - `TaskAssignee`（タスク-ユーザー 中間）
 - `TaskLabel`（タスク-ラベル 中間）
 - `TaskShare`（閲覧権限管理）
+- `Notification`, `NotificationType`（アプリ内通知）
+- `RecurringTemplate`（定期タスクテンプレート）
+- `RecurringTemplateAssignee`, `RecurringTemplateLabel`, `RecurringTemplateShare`（テンプレート関連テーブル）
+- `RecurringFrequency` enum（Daily/Weekly/Monthly）
 
 ### サブタスク共有範囲の実装ルール
 

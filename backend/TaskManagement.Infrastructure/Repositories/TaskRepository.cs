@@ -229,4 +229,19 @@ public class TaskRepository : ITaskRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<TaskItem>> GetOverdueTasksWithAssigneesAsync()
+    {
+        var today = DateTime.UtcNow.Date;
+
+        return await _context.TaskItems
+            .Include(t => t.Assignees)
+            .Include(t => t.Status)
+            .Where(t =>
+                t.DueDate.HasValue &&
+                t.DueDate.Value.Date < today &&
+                t.Status.Name != "完了" &&
+                t.Assignees.Count > 0)
+            .ToListAsync();
+    }
 }

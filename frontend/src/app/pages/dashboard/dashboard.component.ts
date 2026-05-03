@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,9 +9,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
-import { TaskListItem, TaskPriority } from '../../models/task.model';
+import { CreateTaskRequest, TaskListItem, TaskPriority } from '../../models/task.model';
 import { DashboardService } from '../../services/dashboard.service';
+import { TaskService } from '../../services/task.service';
+import { TaskFormComponent, TaskFormDialogData } from '../tasks/task-form/task-form.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,6 +27,7 @@ import { DashboardService } from '../../services/dashboard.service';
     MatProgressSpinnerModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    MatDialogModule,
     DatePipe,
   ],
   templateUrl: './dashboard.component.html',
@@ -30,6 +35,8 @@ import { DashboardService } from '../../services/dashboard.service';
 })
 export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
+  private readonly taskService = inject(TaskService);
+  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
@@ -80,6 +87,28 @@ export class DashboardComponent implements OnInit {
 
   getAssigneeNames(task: TaskListItem): string {
     return task.assignees.map(a => a.displayName).join(', ') || '—';
+  }
+
+  openCreateDialog(): void {
+    const dialogRef = this.dialog.open(TaskFormComponent, {
+      width: '560px',
+      data: { mode: 'create' } satisfies TaskFormDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe(async (result: CreateTaskRequest | undefined) => {
+      if (!result) return;
+      try {
+        await firstValueFrom(this.taskService.create(result));
+        this.snackBar.open('タスクを作成しました', '閉じる', { duration: 3000 });
+        void this.loadDashboard();
+      } catch (error: unknown) {
+        const message =
+          error instanceof HttpErrorResponse && error.status === 400
+            ? (error.error as { error?: string })?.error ?? '入力内容を確認してください'
+            : 'エラーが発生しました。管理者にご連絡ください';
+        this.snackBar.open(message, '閉じる', { duration: 5000 });
+      }
+    });
   }
 
   navigateToDetail(id: number): void {

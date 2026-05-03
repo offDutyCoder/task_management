@@ -13,13 +13,18 @@ public class TaskServiceTests
 {
     private readonly Mock<ITaskRepository> _mockTaskRepository;
     private readonly Mock<IUserRepository> _mockUserRepository;
+    private readonly Mock<INotificationService> _mockNotificationService;
     private readonly TaskService _sut;
 
     public TaskServiceTests()
     {
         _mockTaskRepository = new Mock<ITaskRepository>();
         _mockUserRepository = new Mock<IUserRepository>();
-        _sut = new TaskService(_mockTaskRepository.Object, _mockUserRepository.Object);
+        _mockNotificationService = new Mock<INotificationService>();
+        _mockNotificationService
+            .Setup(n => n.NotifyAssignedAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
+            .Returns(Task.CompletedTask);
+        _sut = new TaskService(_mockTaskRepository.Object, _mockUserRepository.Object, _mockNotificationService.Object);
     }
 
     private static TaskItem BuildTask(int id, int createdByUserId, int? parentTaskId = null, List<TaskShare>? shares = null) => new()
@@ -397,5 +402,85 @@ public class TaskServiceTests
 
         // Then
         _mockTaskRepository.Verify(r => r.RemoveShareUserAsync(1, 5), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateTaskAsync_WhenNewAssigneeAdded_ShouldNotifyNewAssigneeOnly()
+    {
+        // Given - task already has assignee userId=5
+        var existingAssignee = new TaskAssignee { TaskItemId = 1, UserId = 5 };
+        var task = BuildTask(id: 1, createdByUserId: 10);
+        task.Assignees = [existingAssignee];
+
+        _mockTaskRepository.Setup(r => r.GetByIdAsync(1, false)).ReturnsAsync(task);
+        _mockTaskRepository.Setup(r => r.UpdateAsync(
+            It.IsAny<TaskItem>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<List<int>>()))
+            .ReturnsAsync(task);
+        _mockTaskRepository.Setup(r => r.GetByIdAsync(1, true)).ReturnsAsync(task);
+
+        IEnumerable<int>? capturedNewAssignees = null;
+        _mockNotificationService
+            .Setup(n => n.NotifyAssignedAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
+            .Callback<int, string, IEnumerable<int>>((_, _, ids) => capturedNewAssignees = ids)
+            .Returns(Task.CompletedTask);
+
+        var request = new UpdateTaskRequest
+        {
+            Title = "テストタスク",
+            StatusId = 1,
+            AssigneeIds = [5, 6],  // 5 is existing, 6 is new
+            ShareUserIds = [10],
+        };
+
+        // When
+        await _sut.UpdateTaskAsync(1, request, currentUserId: 10);
+
+        // Then - notification sent only for new assignee (userId=6)
+        _mockNotificationService.Verify(n =>
+            n.NotifyAssignedAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()),
+            Times.Once);
+        Assert.NotNull(capturedNewAssignees);
+        Assert.Equal([6], capturedNewAssignees);
+    }
+
+    [Fact]
+    public async Task UpdateTaskAsync_WhenNoNewAssignees_ShouldNotSendNotification()
+    {
+        // Given - task already has assignees userId=5 and 6
+        var existingAssignees = new List<TaskAssignee>
+        {
+            new() { TaskItemId = 1, UserId = 5 },
+            new() { TaskItemId = 1, UserId = 6 },
+        };
+        var task = BuildTask(id: 1, createdByUserId: 10);
+        task.Assignees = existingAssignees;
+
+        _mockTaskRepository.Setup(r => r.GetByIdAsync(1, false)).ReturnsAsync(task);
+        _mockTaskRepository.Setup(r => r.UpdateAsync(
+            It.IsAny<TaskItem>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<List<int>>()))
+            .ReturnsAsync(task);
+        _mockTaskRepository.Setup(r => r.GetByIdAsync(1, true)).ReturnsAsync(task);
+
+        var request = new UpdateTaskRequest
+        {
+            Title = "テストタスク",
+            StatusId = 1,
+            AssigneeIds = [5, 6],  // same as existing - no new assignees
+            ShareUserIds = [10],
+        };
+
+        // When
+        await _sut.UpdateTaskAsync(1, request, currentUserId: 10);
+
+        // Then - no notification
+        _mockNotificationService.Verify(n =>
+            n.NotifyAssignedAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()),
+            Times.Never);
     }
 }

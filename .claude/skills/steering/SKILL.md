@@ -32,7 +32,7 @@ allowed-tools: Read, Write
 
 1. **ステアリングディレクトリの確認**
    ```
-   現在の日付を取得し、`.steering/[YYYYMMDD]-[機能名]/` の形式でディレクトリを作成
+   `.steering/[機能名]/` の形式でディレクトリを作成
    ```
 
 2. **永続ドキュメントの確認**
@@ -48,9 +48,9 @@ allowed-tools: Read, Write
 
    以下のテンプレートを読み込み、プレースホルダーを具体的な内容に置き換えてファイルを作成:
 
-   - `.claude/skills/steering/templates/requirements.md` → `.steering/[日付]-[機能名]/requirements.md`
-   - `.claude/skills/steering/templates/design.md` → `.steering/[日付]-[機能名]/design.md`
-   - `.claude/skills/steering/templates/tasklist.md` → `.steering/[日付]-[機能名]/tasklist.md`
+   - `.claude/skills/steering/templates/requirements.md` → `.steering/[機能名]/requirements.md`
+   - `.claude/skills/steering/templates/design.md` → `.steering/[機能名]/design.md`
+   - `.claude/skills/steering/templates/tasklist.md` → `.steering/[機能名]/tasklist.md`
 
 4. **tasklist.mdの詳細化**
 
@@ -130,7 +130,7 @@ tasklist.mdに従って実装を進め、**進捗を確実にドキュメント�
 #### ステップ1: tasklist.mdを読み込む
 
 ```
-Read('.steering/[日付]-[機能名]/tasklist.md')
+Read('.steering/[機能名]/tasklist.md')
 ```
 
 全体のタスク構造を把握し、次に着手すべきタスクを特定する。
@@ -192,7 +192,7 @@ TodoWriteツールで該当タスクを"completed"に変更
 
 1. **tasklist.mdを読み込んで進捗確認**
    ```
-   Read('.steering/[日付]-[機能名]/tasklist.md')
+   Read('.steering/[機能名]/tasklist.md')
    ```
 
 2. **完了したタスクを確認**
@@ -210,7 +210,7 @@ TodoWriteツールで該当タスクを"completed"に変更
 
 1. **tasklist.mdを読み込む**
    ```
-   Read('.steering/[日付]-[機能名]/tasklist.md')
+   Read('.steering/[機能名]/tasklist.md')
    ```
 
 2. **未完了タスク（`[ ]`）がないか確認**
@@ -261,7 +261,7 @@ TodoWriteツールで該当タスクを"completed"に変更
 
 1. **最終確認**
    ```
-   Read('.steering/[日付]-[機能名]/tasklist.md')
+   Read('.steering/[機能名]/tasklist.md')
    ```
 
    すべてのタスクが`[x]`になっていることを確認
@@ -292,7 +292,7 @@ TodoWriteツールで該当タスクを"completed"に変更
 
 1. **tasklist.mdを読み込む**
    ```
-   Read('.steering/[日付]-[機能名]/tasklist.md')
+   Read('.steering/[機能名]/tasklist.md')
    ```
 
 2. **振り返り内容を作成**
@@ -319,7 +319,7 @@ TodoWriteツールで該当タスクを"completed"に変更
 
 1. **即座に更新を実行**
    ```
-   Read('.steering/[日付]-[機能名]/tasklist.md')
+   Read('.steering/[機能名]/tasklist.md')
    完了したタスクを特定し、すべてEditツールで`[x]`に更新
    ```
 
