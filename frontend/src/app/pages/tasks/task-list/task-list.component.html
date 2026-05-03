@@ -1,0 +1,161 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>タスク一覧</mat-card-title>
+    <span class="spacer"></span>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      新規タスク
+    </button>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- フィルターパネル -->
+    <form [formGroup]="filterForm" class="filter-panel" (ngSubmit)="onFilterChange()">
+      <mat-form-field appearance="outline">
+        <mat-label>ステータス</mat-label>
+        <mat-select formControlName="statusId" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">すべて</mat-option>
+          @for (s of statuses(); track s.id) {
+            <mat-option [value]="s.id">{{ s.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>担当者</mat-label>
+        <mat-select formControlName="assigneeId" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">すべて</mat-option>
+          @for (u of users(); track u.id) {
+            <mat-option [value]="u.id">{{ u.displayName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>優先度</mat-label>
+        <mat-select formControlName="priority" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">すべて</mat-option>
+          <mat-option [value]="TaskPriority.High">高</mat-option>
+          <mat-option [value]="TaskPriority.Medium">中</mat-option>
+          <mat-option [value]="TaskPriority.Low">低</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>ラベル</mat-label>
+        <mat-select formControlName="labelId" (selectionChange)="onFilterChange()">
+          <mat-option [value]="null">すべて</mat-option>
+          @for (l of labels(); track l.id) {
+            <mat-option [value]="l.id">{{ l.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>キーワード検索</mat-label>
+        <input matInput formControlName="search" placeholder="タイトル・説明文で検索" (keyup.enter)="onFilterChange()" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>期限（開始）</mat-label>
+        <input matInput type="date" formControlName="dueAfter" (change)="onFilterChange()" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>期限（終了）</mat-label>
+        <input matInput type="date" formControlName="dueBefore" (change)="onFilterChange()" />
+      </mat-form-field>
+
+      <mat-checkbox formControlName="isRecurring" (change)="onFilterChange()" class="recurring-checkbox">
+        定期タスクのみ
+      </mat-checkbox>
+    </form>
+
+    <!-- テーブル -->
+    @if (isLoading()) {
+      <div class="spinner-container">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="tasks()" class="task-table">
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>タイトル</th>
+          <td mat-cell *matCellDef="let task">
+            <a class="task-title-link" role="button" tabindex="0"
+               (click)="navigateToDetail(task.id)"
+               (keyup.enter)="navigateToDetail(task.id)">{{ task.title }}</a>
+            @if (task.subTaskCount > 0) {
+              <mat-icon class="subtask-icon" [matBadge]="task.subTaskCount" matBadgeSize="small">subdirectory_arrow_right</mat-icon>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>ステータス</th>
+          <td mat-cell *matCellDef="let task">
+            <span class="status-badge" [style.background-color]="task.status.color">
+              {{ task.status.name }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="priority">
+          <th mat-header-cell *matHeaderCellDef>優先度</th>
+          <td mat-cell *matCellDef="let task">
+            <span class="priority-label" [class]="'priority-' + task.priority">
+              {{ getPriorityLabel(task.priority) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dueDate">
+          <th mat-header-cell *matHeaderCellDef>期限</th>
+          <td mat-cell *matCellDef="let task">
+            {{ task.dueDate ? (task.dueDate | date: 'MM/dd') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="assignees">
+          <th mat-header-cell *matHeaderCellDef>担当者</th>
+          <td mat-cell *matCellDef="let task">
+            {{ getAssigneeNames(task) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="labels">
+          <th mat-header-cell *matHeaderCellDef>ラベル</th>
+          <td mat-cell *matCellDef="let task">
+            @for (label of task.labels; track label.id) {
+              <span class="label-badge" [style.background-color]="label.color">{{ label.name }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="subTaskCount">
+          <th mat-header-cell *matHeaderCellDef>サブタスク</th>
+          <td mat-cell *matCellDef="let task">{{ task.subTaskCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let task">
+            <button mat-icon-button (click)="navigateToDetail(task.id)" title="詳細を表示">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="task-row"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+      ></mat-paginator>
+    }
+  </mat-card-content>
+</mat-card>

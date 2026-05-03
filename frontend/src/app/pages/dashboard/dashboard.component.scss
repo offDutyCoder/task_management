@@ -1,0 +1,91 @@
+.dashboard-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dashboard-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.section-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.task-table {
+  width: 100%;
+}
+
+.task-title-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.priority-label {
+  font-weight: 500;
+
+  &.priority-0 { color: #d32f2f; }
+  &.priority-1 { color: #f57c00; }
+  &.priority-2 { color: #388e3c; }
+}
+
+.overdue {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.overdue-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.overdue-row td {
+  background-color: rgba(211, 47, 47, 0.04);
+}
+
+.empty-message {
+  color: rgba(0, 0, 0, 0.54);
+  padding: 16px 0;
+  text-align: center;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}

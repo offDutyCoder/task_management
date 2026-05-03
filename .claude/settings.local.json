@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(steering)",
+      "Skill(steering:*)",
+      "Bash(npm test *)"
+    ]
+  }
+}

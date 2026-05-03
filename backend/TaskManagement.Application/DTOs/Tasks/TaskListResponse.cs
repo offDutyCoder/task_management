@@ -1,0 +1,9 @@
+namespace TaskManagement.Application.DTOs.Tasks;
+
+public class TaskListResponse
+{
+    public List<TaskListItem> Items { get; set; } = [];
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+}

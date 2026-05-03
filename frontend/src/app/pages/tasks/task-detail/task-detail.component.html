@@ -1,0 +1,160 @@
+@if (isLoading()) {
+  <div class="spinner-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else {
+  @if (task(); as t) {
+    <div class="detail-container">
+      <!-- ヘッダー -->
+      <div class="detail-header">
+        <button mat-icon-button (click)="navigateBack()" title="一覧に戻る">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2 class="task-title">{{ t.title }}</h2>
+        <span class="spacer"></span>
+        <button mat-icon-button (click)="openEditDialog()" title="編集">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteTask()" title="削除">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      @if (t.parentTask) {
+        <div class="parent-task-ref">
+          <mat-icon>arrow_upward</mat-icon>
+          親タスク: <a class="link" role="button" tabindex="0"
+            (click)="navigateToSubTask(t.parentTask.id)"
+            (keyup.enter)="navigateToSubTask(t.parentTask.id)">{{ t.parentTask.title }}</a>
+        </div>
+      }
+
+      <div class="detail-grid">
+        <!-- メタ情報 -->
+        <mat-card class="meta-card">
+          <mat-card-content>
+            <div class="meta-row">
+              <span class="meta-label">ステータス</span>
+              <span class="status-badge" [style.background-color]="t.status.color">{{ t.status.name }}</span>
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">優先度</span>
+              <span class="priority-label" [class]="'priority-' + t.priority">{{ getPriorityLabel(t.priority) }}</span>
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">期限日</span>
+              <span>{{ t.dueDate ? (t.dueDate | date: 'yyyy/MM/dd') : '未設定' }}</span>
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">担当者</span>
+              <div class="assignee-list">
+                @for (a of t.assignees; track a.id) {
+                  <span class="assignee-item">
+                    {{ a.displayName }}
+                    <button mat-icon-button class="assignee-remove-btn" (click)="removeAssignee(a.id)" title="担当者を外す">
+                      <mat-icon class="assignee-remove-icon">close</mat-icon>
+                    </button>
+                  </span>
+                }
+                @if (t.assignees.length === 0) {
+                  <span class="no-assignee">未設定</span>
+                }
+                <button mat-icon-button (click)="openAddAssigneeDialog()" title="担当者を追加">
+                  <mat-icon>person_add</mat-icon>
+                </button>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">ラベル</span>
+              <div class="label-chips">
+                @for (l of t.labels; track l.id) {
+                  <mat-chip [style.background-color]="l.color" class="label-chip">{{ l.name }}</mat-chip>
+                }
+                @if (t.labels.length === 0) { <span>なし</span> }
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">共有ユーザー</span>
+              @if (t.parentTask) {
+                <span class="no-assignee">親タスクの設定を継承</span>
+              } @else {
+                <div class="assignee-list">
+                  @for (u of t.shareUsers; track u.id) {
+                    <span class="assignee-item">
+                      {{ u.displayName }}
+                      <button mat-icon-button class="assignee-remove-btn" (click)="removeShare(u.id)" title="共有を解除">
+                        <mat-icon class="assignee-remove-icon">close</mat-icon>
+                      </button>
+                    </span>
+                  }
+                  @if (t.shareUsers.length === 0) {
+                    <span class="no-assignee">未設定</span>
+                  }
+                  <button mat-icon-button (click)="openAddShareDialog()" title="共有ユーザーを追加">
+                    <mat-icon>person_add</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+            <mat-divider></mat-divider>
+
+            <div class="meta-row">
+              <span class="meta-label">作成日時</span>
+              <span>{{ t.createdAt | date: 'yyyy/MM/dd HH:mm' }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- 説明 -->
+        <div class="description-section">
+          @if (t.description) {
+            <mat-card>
+              <mat-card-header><mat-card-title>説明</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <p class="description-text">{{ t.description }}</p>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- サブタスク -->
+          <mat-card class="subtask-card">
+            <mat-card-header>
+              <mat-card-title>サブタスク ({{ t.subTasks.length }})</mat-card-title>
+              <span class="spacer"></span>
+              <button mat-icon-button (click)="openAddSubTaskDialog()" title="サブタスクを追加">
+                <mat-icon>add</mat-icon>
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              @if (t.subTasks.length > 0) {
+                <mat-list>
+                  @for (sub of t.subTasks; track sub.id) {
+                    <mat-list-item (click)="navigateToSubTask(sub.id)" class="subtask-item">
+                      <span matListItemTitle>{{ sub.title }}</span>
+                      <span matListItemLine>
+                        <span class="status-badge-sm" [style.background-color]="sub.status.color">{{ sub.status.name }}</span>
+                      </span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                  }
+                </mat-list>
+              } @else {
+                <p class="empty-text">サブタスクはありません</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  }
+}

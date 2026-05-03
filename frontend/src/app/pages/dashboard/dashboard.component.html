@@ -1,0 +1,157 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">ダッシュボード</h1>
+    <mat-slide-toggle [checked]="showRecurring()" (change)="onToggleRecurring()">
+      定期タスクを表示
+    </mat-slide-toggle>
+  </div>
+
+  @if (isLoading()) {
+    <div class="spinner-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <!-- マイタスク -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>マイタスク</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (myTasks().length === 0) {
+          <p class="empty-message">担当タスクはありません</p>
+        } @else {
+          <table mat-table [dataSource]="myTasks()" class="task-table">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef>タイトル</th>
+              <td mat-cell *matCellDef="let task">
+                <a class="task-title-link" role="button" tabindex="0"
+                   (click)="navigateToDetail(task.id)"
+                   (keyup.enter)="navigateToDetail(task.id)">{{ task.title }}</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>ステータス</th>
+              <td mat-cell *matCellDef="let task">
+                <span class="status-badge" [style.background-color]="task.status.color">
+                  {{ task.status.name }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="priority">
+              <th mat-header-cell *matHeaderCellDef>優先度</th>
+              <td mat-cell *matCellDef="let task">
+                <span class="priority-label" [class]="'priority-' + task.priority">
+                  {{ getPriorityLabel(task.priority) }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef>期限</th>
+              <td mat-cell *matCellDef="let task" [class.overdue]="isOverdue(task.dueDate)">
+                @if (task.dueDate) {
+                  @if (isOverdue(task.dueDate)) {
+                    <mat-icon class="overdue-icon">warning</mat-icon>
+                  }
+                  {{ task.dueDate | date: 'yy/MM/dd' }}
+                } @else {
+                  —
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let task">
+                <button mat-icon-button (click)="navigateToDetail(task.id)" title="詳細を表示">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                class="task-row"
+                [class.overdue-row]="isOverdue(row.dueDate)"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- チーム共有タスク -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>チーム共有タスク</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (teamTasks().length === 0) {
+          <p class="empty-message">共有タスクはありません</p>
+        } @else {
+          <table mat-table [dataSource]="teamTasks()" class="task-table">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef>タイトル</th>
+              <td mat-cell *matCellDef="let task">
+                <a class="task-title-link" role="button" tabindex="0"
+                   (click)="navigateToDetail(task.id)"
+                   (keyup.enter)="navigateToDetail(task.id)">{{ task.title }}</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>ステータス</th>
+              <td mat-cell *matCellDef="let task">
+                <span class="status-badge" [style.background-color]="task.status.color">
+                  {{ task.status.name }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="priority">
+              <th mat-header-cell *matHeaderCellDef>優先度</th>
+              <td mat-cell *matCellDef="let task">
+                <span class="priority-label" [class]="'priority-' + task.priority">
+                  {{ getPriorityLabel(task.priority) }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="assignees">
+              <th mat-header-cell *matHeaderCellDef>担当者</th>
+              <td mat-cell *matCellDef="let task">{{ getAssigneeNames(task) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef>期限</th>
+              <td mat-cell *matCellDef="let task" [class.overdue]="isOverdue(task.dueDate)">
+                @if (task.dueDate) {
+                  @if (isOverdue(task.dueDate)) {
+                    <mat-icon class="overdue-icon">warning</mat-icon>
+                  }
+                  {{ task.dueDate | date: 'yy/MM/dd' }}
+                } @else {
+                  —
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let task">
+                <button mat-icon-button (click)="navigateToDetail(task.id)" title="詳細を表示">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="teamDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: teamDisplayedColumns;"
+                class="task-row"
+                [class.overdue-row]="isOverdue(row.dueDate)"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

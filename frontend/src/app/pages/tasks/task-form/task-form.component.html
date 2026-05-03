@@ -1,0 +1,83 @@
+<h2 mat-dialog-title>{{ data.mode === 'create' ? 'タスク作成' : 'タスク編集' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="task-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>タイトル</mat-label>
+      <input matInput formControlName="title" placeholder="タイトルを入力" />
+      @if (form.controls['title'].hasError('required')) {
+        <mat-error>タイトルは必須です</mat-error>
+      }
+      @if (form.controls['title'].hasError('maxlength')) {
+        <mat-error>200文字以内で入力してください</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>説明</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="説明（任意）"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ステータス</mat-label>
+      <mat-select formControlName="statusId">
+        @for (s of statuses(); track s.id) {
+          <mat-option [value]="s.id">{{ s.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls['statusId'].hasError('required')) {
+        <mat-error>ステータスは必須です</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>優先度</mat-label>
+      <mat-select formControlName="priority">
+        <mat-option [value]="TaskPriority.High">高</mat-option>
+        <mat-option [value]="TaskPriority.Medium">中</mat-option>
+        <mat-option [value]="TaskPriority.Low">低</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>期限日</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dueDate" placeholder="期限日（任意）" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>担当者</mat-label>
+      <mat-select formControlName="assigneeIds" multiple>
+        @for (u of users(); track u.id) {
+          <mat-option [value]="u.id">{{ u.displayName }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>ラベル</mat-label>
+      <mat-select formControlName="labelIds" multiple>
+        @for (l of labels(); track l.id) {
+          <mat-option [value]="l.id">{{ l.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>共有ユーザー</mat-label>
+      <mat-select formControlName="shareUserIds" multiple>
+        @for (u of users(); track u.id) {
+          <mat-option [value]="u.id">{{ u.displayName }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>キャンセル</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="onSave()">
+    保存
+  </button>
+</mat-dialog-actions>

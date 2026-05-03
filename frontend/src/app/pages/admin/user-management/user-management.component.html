@@ -1,0 +1,76 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>ユーザー管理</mat-card-title>
+    <span class="spacer"></span>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openCreateDialog()"
+      data-testid="create-user-button"
+    >
+      <mat-icon>add</mat-icon>
+      新規ユーザー
+    </button>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else {
+      <table mat-table [dataSource]="users()" class="full-width">
+        <ng-container matColumnDef="loginId">
+          <th mat-header-cell *matHeaderCellDef>ログインID</th>
+          <td mat-cell *matCellDef="let user">{{ user.loginId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="displayName">
+          <th mat-header-cell *matHeaderCellDef>表示名</th>
+          <td mat-cell *matCellDef="let user">{{ user.displayName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>ロール</th>
+          <td mat-cell *matCellDef="let user">{{ getRoleLabel(user.role) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="isActive">
+          <th mat-header-cell *matHeaderCellDef>ステータス</th>
+          <td mat-cell *matCellDef="let user">
+            <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
+              {{ user.isActive ? '有効' : '無効' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>操作</th>
+          <td mat-cell *matCellDef="let user">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="openEditDialog(user)"
+              [attr.aria-label]="user.displayName + 'を編集'"
+              data-testid="edit-user-button"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [color]="user.isActive ? 'warn' : 'accent'"
+              (click)="toggleActive(user)"
+              [attr.aria-label]="user.isActive ? user.displayName + 'を無効化' : user.displayName + 'を有効化'"
+              data-testid="toggle-active-button"
+            >
+              <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,90 @@
+.filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.search-field {
+  min-width: 240px;
+}
+
+.task-table {
+  width: 100%;
+}
+
+.task-row {
+  cursor: pointer;
+}
+
+.task-row:hover {
+  background-color: #f5f5f5;
+}
+
+.task-title-link {
+  cursor: pointer;
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.task-title-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: white;
+  font-weight: 500;
+}
+
+.priority-label {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.priority-0 { color: #f44336; }
+.priority-1 { color: #ff9800; }
+.priority-2 { color: #2196f3; }
+
+.subtask-icon {
+  font-size: 16px;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: #757575;
+}
+
+.label-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: white;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.recurring-checkbox {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
