@@ -40,8 +40,8 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 
-# Claude Code local settings (project settings .claude/settings.json is kept)
-.claude/settings.local.json
+# Claude Code (all project-local config)
+.claude/
 
 # Internal planning docs (Claude steering documents)
 .steering/
