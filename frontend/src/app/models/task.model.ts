@@ -50,6 +50,7 @@ export interface TaskDetailResponse {
   parentTask: TaskListItem | null;
   subTasks: TaskListItem[];
   assignees: AssigneeDto[];
+  assigneeTeamId: number | null;
   labels: LabelDto[];
   shareUsers: AssigneeDto[];
   createdByUserId: number;
@@ -65,6 +66,7 @@ export interface CreateTaskRequest {
   dueDate?: string | null;
   parentTaskId?: number | null;
   assigneeIds: number[];
+  assigneeTeamId?: number | null;
   labelIds: number[];
   shareUserIds: number[];
 }
@@ -76,6 +78,7 @@ export interface UpdateTaskRequest {
   priority: TaskPriority;
   dueDate?: string | null;
   assigneeIds: number[];
+  assigneeTeamId?: number | null;
   labelIds: number[];
   shareUserIds: number[];
 }
@@ -93,7 +96,14 @@ export interface TaskFilterQuery {
   pageSize?: number;
 }
 
+export interface AssigneeGroup {
+  assigneeType: 'user' | 'team';
+  assigneeId: number;
+  assigneeName: string;
+  tasks: TaskListItem[];
+}
+
 export interface DashboardResponse {
   myTasks: TaskListItem[];
-  teamTasks: TaskListItem[];
+  teamTaskGroups: AssigneeGroup[];
 }

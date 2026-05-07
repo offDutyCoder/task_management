@@ -17,9 +17,11 @@ import {
 import { TaskStatus } from '../../../models/task-status.model';
 import { Label } from '../../../models/label.model';
 import { User } from '../../../models/user.model';
+import { TeamDto } from '../../../models/team.model';
 import { StatusService } from '../../../services/status.service';
 import { LabelService } from '../../../services/label.service';
 import { UserService } from '../../../services/user.service';
+import { TeamService } from '../../../services/team.service';
 
 export interface TaskFormDialogData {
   mode: 'create' | 'edit';
@@ -49,11 +51,18 @@ export class TaskFormComponent implements OnInit {
   private readonly statusService = inject(StatusService);
   private readonly labelService = inject(LabelService);
   private readonly userService = inject(UserService);
+  private readonly teamService = inject(TeamService);
 
   readonly TaskPriority = TaskPriority;
   readonly statuses = signal<TaskStatus[]>([]);
   readonly labels = signal<Label[]>([]);
   readonly users = signal<User[]>([]);
+  readonly teams = signal<TeamDto[]>([]);
+
+  private get initialAssigneeType(): 'user' | 'team' {
+    if (this.data.task?.assigneeTeamId) return 'team';
+    return 'user';
+  }
 
   readonly form = this.fb.group({
     title: [this.data.task?.title ?? '', [Validators.required, Validators.maxLength(200)]],
@@ -61,7 +70,9 @@ export class TaskFormComponent implements OnInit {
     statusId: [this.data.task?.status?.id ?? null as number | null, [Validators.required]],
     priority: [this.data.task?.priority ?? TaskPriority.Medium, [Validators.required]],
     dueDate: [this.data.task?.dueDate ? new Date(this.data.task.dueDate) : null as Date | null],
-    assigneeIds: [this.data.task?.assignees.map(a => a.id) ?? [] as number[]],
+    assigneeType: [this.initialAssigneeType, [Validators.required]],
+    assigneeUserId: [this.data.task?.assignees[0]?.id ?? null as number | null],
+    assigneeTeamId: [this.data.task?.assigneeTeamId ?? null as number | null],
     labelIds: [this.data.task?.labels.map(l => l.id) ?? [] as number[]],
     shareUserIds: [this.data.task?.shareUsers?.map(u => u.id) ?? [] as number[]],
   });
@@ -73,14 +84,16 @@ export class TaskFormComponent implements OnInit {
   }
 
   private async loadReferenceData(): Promise<void> {
-    const [statuses, labels, users] = await Promise.all([
+    const [statuses, labels, users, teams] = await Promise.all([
       firstValueFrom(this.statusService.getAll()),
       firstValueFrom(this.labelService.getAll()),
       firstValueFrom(this.userService.getAll()),
+      firstValueFrom(this.teamService.getAll()),
     ]);
     this.statuses.set(statuses.filter(s => s.isActive));
     this.labels.set(labels);
     this.users.set(users);
+    this.teams.set(teams);
   }
 
   onSave(): void {
@@ -88,6 +101,10 @@ export class TaskFormComponent implements OnInit {
 
     const value = this.form.getRawValue();
     const dueDate = value.dueDate ? (value.dueDate as Date).toISOString().split('T')[0] : null;
+
+    const isTeam = value.assigneeType === 'team';
+    const assigneeIds = isTeam ? [] : (value.assigneeUserId ? [value.assigneeUserId] : []);
+    const assigneeTeamId = isTeam ? (value.assigneeTeamId ?? null) : null;
 
     if (this.data.mode === 'create') {
       const request: CreateTaskRequest = {
@@ -97,7 +114,8 @@ export class TaskFormComponent implements OnInit {
         priority: value.priority ?? TaskPriority.Medium,
         dueDate,
         parentTaskId: this.data.parentTaskId ?? null,
-        assigneeIds: value.assigneeIds ?? [],
+        assigneeIds,
+        assigneeTeamId,
         labelIds: value.labelIds ?? [],
         shareUserIds: value.shareUserIds ?? [],
       };
@@ -109,7 +127,8 @@ export class TaskFormComponent implements OnInit {
         statusId: value.statusId!,
         priority: value.priority ?? TaskPriority.Medium,
         dueDate,
-        assigneeIds: value.assigneeIds ?? [],
+        assigneeIds,
+        assigneeTeamId,
         labelIds: value.labelIds ?? [],
         shareUserIds: value.shareUserIds ?? [],
       };

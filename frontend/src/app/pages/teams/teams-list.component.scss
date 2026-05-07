@@ -1,0 +1,23 @@
+.teams-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.teams-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.empty-message {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  padding: 16px;
+}

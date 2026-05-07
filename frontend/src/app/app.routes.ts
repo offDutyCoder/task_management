@@ -78,6 +78,18 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'teams',
+    loadComponent: () =>
+      import('./pages/teams/teams-list.component').then(m => m.TeamsListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'teams/:id',
+    loadComponent: () =>
+      import('./pages/teams/team-detail.component').then(m => m.TeamDetailComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',

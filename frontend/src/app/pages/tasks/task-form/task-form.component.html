@@ -47,13 +47,43 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>担当者</mat-label>
-      <mat-select formControlName="assigneeIds" multiple>
-        @for (u of users(); track u.id) {
-          <mat-option [value]="u.id">{{ u.displayName }}</mat-option>
-        }
+      <mat-label>担当タイプ</mat-label>
+      <mat-select formControlName="assigneeType">
+        <mat-option value="user">個人</mat-option>
+        <mat-option value="team">チーム</mat-option>
       </mat-select>
+      @if (form.controls['assigneeType'].hasError('required')) {
+        <mat-error>担当タイプを選択してください</mat-error>
+      }
     </mat-form-field>
+
+    @if (form.get('assigneeType')?.value === 'user') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>担当者（個人）</mat-label>
+        <mat-select formControlName="assigneeUserId">
+          @for (u of users(); track u.id) {
+            <mat-option [value]="u.id">{{ u.displayName }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls['assigneeUserId'].hasError('required')) {
+          <mat-error>担当者を選択してください</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    @if (form.get('assigneeType')?.value === 'team') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>担当チーム</mat-label>
+        <mat-select formControlName="assigneeTeamId">
+          @for (t of teams(); track t.id) {
+            <mat-option [value]="t.id">{{ t.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls['assigneeTeamId'].hasError('required')) {
+          <mat-error>チームを選択してください</mat-error>
+        }
+      </mat-form-field>
+    }
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>ラベル</mat-label>

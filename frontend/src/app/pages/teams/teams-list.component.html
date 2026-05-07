@@ -1,0 +1,37 @@
+<div class="teams-container">
+  <div class="teams-header">
+    <h1>チーム管理</h1>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      チームを作成
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <p>読み込み中...</p>
+  } @else if (teams().length === 0) {
+    <mat-card>
+      <mat-card-content>
+        <p class="empty-message">チームがありません。「チームを作成」から追加してください。</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card>
+      <mat-list>
+        @for (team of teams(); track team.id) {
+          <mat-list-item class="team-item" (click)="navigateToDetail(team.id)" style="cursor:pointer">
+            <mat-icon matListItemIcon>group</mat-icon>
+            <span matListItemTitle>{{ team.name }}</span>
+            <span matListItemLine>メンバー {{ team.members.length }} 名</span>
+            <button mat-icon-button matListItemMeta
+              (click)="deleteTeam(team.id, $event)"
+              title="削除"
+              aria-label="チームを削除">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-list-item>
+        }
+      </mat-list>
+    </mat-card>
+  }
+</div>

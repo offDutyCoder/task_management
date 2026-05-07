@@ -11,7 +11,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
-import { CreateTaskRequest, TaskListItem, TaskPriority } from '../../models/task.model';
+import { AssigneeGroup, CreateTaskRequest, TaskListItem, TaskPriority } from '../../models/task.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { TaskService } from '../../services/task.service';
 import { TaskFormComponent, TaskFormDialogData } from '../tasks/task-form/task-form.component';
@@ -42,12 +42,11 @@ export class DashboardComponent implements OnInit {
 
   readonly TaskPriority = TaskPriority;
   readonly myTasks = signal<TaskListItem[]>([]);
-  readonly teamTasks = signal<TaskListItem[]>([]);
+  readonly teamTaskGroups = signal<AssigneeGroup[]>([]);
   readonly isLoading = signal(false);
   readonly showRecurring = signal(false);
 
   readonly displayedColumns = ['title', 'status', 'priority', 'dueDate', 'actions'];
-  readonly teamDisplayedColumns = ['title', 'status', 'priority', 'assignees', 'dueDate', 'actions'];
 
   ngOnInit(): void {
     void this.loadDashboard();
@@ -58,7 +57,7 @@ export class DashboardComponent implements OnInit {
     try {
       const data = await firstValueFrom(this.dashboardService.getDashboard(this.showRecurring()));
       this.myTasks.set(data.myTasks);
-      this.teamTasks.set(data.teamTasks);
+      this.teamTaskGroups.set(data.teamTaskGroups);
     } catch {
       this.snackBar.open('ダッシュボードの取得に失敗しました', '閉じる', { duration: 3000 });
     } finally {
@@ -85,8 +84,8 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  getAssigneeNames(task: TaskListItem): string {
-    return task.assignees.map(a => a.displayName).join(', ') || '—';
+  getGroupIcon(group: AssigneeGroup): string {
+    return group.assigneeType === 'team' ? 'group' : 'person';
   }
 
   openCreateDialog(): void {

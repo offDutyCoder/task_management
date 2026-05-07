@@ -1,0 +1,39 @@
+<div class="team-detail-container">
+  @if (isLoading()) {
+    <p>読み込み中...</p>
+  } @else if (team()) {
+    <div class="team-header">
+      <h1>{{ team()!.name }}</h1>
+      <div class="team-actions">
+        <button mat-stroked-button (click)="openEditDialog()">
+          <mat-icon>edit</mat-icon>
+          編集
+        </button>
+        <button mat-stroked-button color="warn" (click)="deleteTeam()">
+          <mat-icon>delete</mat-icon>
+          削除
+        </button>
+      </div>
+    </div>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>メンバー ({{ team()!.members.length }} 名)</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (team()!.members.length === 0) {
+          <p class="empty-message">メンバーがいません</p>
+        } @else {
+          <mat-list>
+            @for (member of team()!.members; track member.userId) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>person</mat-icon>
+                <span matListItemTitle>{{ member.displayName }}</span>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

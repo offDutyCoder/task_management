@@ -23,6 +23,10 @@
         <mat-icon matListItemIcon>notifications</mat-icon>
         <span matListItemTitle>通知</span>
       </a>
+      <a mat-list-item routerLink="/teams" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>group</mat-icon>
+        <span matListItemTitle>チーム</span>
+      </a>
       @if (isAdmin()) {
         <mat-divider />
         <a mat-list-item routerLink="/admin/users" routerLinkActive="active-link">

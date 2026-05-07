@@ -53,6 +53,12 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
             .HasForeignKey(t => t.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(t => t.AssigneeTeam)
+            .WithMany(team => team.AssignedTasks)
+            .HasForeignKey(t => t.AssigneeTeamId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(t => t.AssigneeTeamId);
         builder.HasIndex(t => t.StatusId);
         builder.HasIndex(t => t.DueDate);
         builder.HasIndex(t => t.ParentTaskId);

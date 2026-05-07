@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<RecurringTemplateAssignee> RecurringTemplateAssignees => Set<RecurringTemplateAssignee>();
     public DbSet<RecurringTemplateLabel> RecurringTemplateLabels => Set<RecurringTemplateLabel>();
     public DbSet<RecurringTemplateShare> RecurringTemplateShares => Set<RecurringTemplateShare>();
+    public DbSet<Team> Teams => Set<Team>();
+    public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

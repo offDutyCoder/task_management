@@ -13,6 +13,7 @@ public class TaskDetailResponse
     public TaskListItem? ParentTask { get; set; }
     public List<TaskListItem> SubTasks { get; set; } = [];
     public List<AssigneeDto> Assignees { get; set; } = [];
+    public int? AssigneeTeamId { get; set; }
     public List<LabelDto> Labels { get; set; } = [];
     public List<AssigneeDto> ShareUsers { get; set; } = [];
     public int CreatedByUserId { get; set; }

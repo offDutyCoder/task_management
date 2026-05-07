@@ -20,6 +20,7 @@ public class TaskRepository : ITaskRepository
         var query = _context.TaskItems
             .Include(t => t.Status)
             .Include(t => t.Assignees).ThenInclude(a => a.User)
+            .Include(t => t.AssigneeTeam)
             .Include(t => t.TaskLabels).ThenInclude(tl => tl.Label)
             .Include(t => t.Shares).ThenInclude(s => s.User)
             .Include(t => t.ParentTask).ThenInclude(p => p != null ? p.Status : null!)
@@ -47,6 +48,7 @@ public class TaskRepository : ITaskRepository
             .Include(t => t.TaskLabels).ThenInclude(tl => tl.Label)
             .Include(t => t.Shares)
             .Include(t => t.SubTasks)
+            .Include(t => t.AssigneeTeam)
             .Where(t => t.CreatedByUserId == currentUserId
                 || (t.ParentTaskId == null && t.Shares.Any(s => s.UserId == currentUserId))
                 || (t.ParentTaskId != null && _context.TaskShares

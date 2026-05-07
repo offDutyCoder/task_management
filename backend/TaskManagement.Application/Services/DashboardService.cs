@@ -7,36 +7,77 @@ namespace TaskManagement.Application.Services;
 public class DashboardService : IDashboardService
 {
     private readonly ITaskRepository _taskRepository;
+    private readonly ITeamRepository _teamRepository;
 
-    public DashboardService(ITaskRepository taskRepository)
+    public DashboardService(ITaskRepository taskRepository, ITeamRepository teamRepository)
     {
         _taskRepository = taskRepository;
+        _teamRepository = teamRepository;
     }
 
     public async Task<DashboardResponse> GetDashboardAsync(int currentUserId, bool includeRecurring = false)
     {
         bool? recurringFilter = includeRecurring ? null : false;
 
-        var myTasksFilter = new TaskFilterQuery
-        {
-            AssigneeId = currentUserId,
-            IsRecurring = recurringFilter,
-            PageSize = 100,
-        };
+        var myTeamIds = await _teamRepository.GetTeamIdsForUserAsync(currentUserId);
 
-        var teamTasksFilter = new TaskFilterQuery
+        var allFilter = new TaskFilterQuery
         {
             IsRecurring = recurringFilter,
-            PageSize = 100,
+            PageSize = 200,
         };
 
-        var (myTaskItems, _) = await _taskRepository.GetListAsync(myTasksFilter, currentUserId);
-        var (teamTaskItems, _) = await _taskRepository.GetListAsync(teamTasksFilter, currentUserId);
+        var (allItems, _) = await _taskRepository.GetListAsync(allFilter, currentUserId);
+        var allTasks = allItems.ToList();
+
+        var myTasks = allTasks
+            .Where(t =>
+                t.Assignees.Any(a => a.UserId == currentUserId) ||
+                (t.AssigneeTeamId.HasValue && myTeamIds.Contains(t.AssigneeTeamId.Value)))
+            .Select(MapToListItem)
+            .ToList();
+
+        var teamTaskGroups = allTasks
+            .GroupBy(t =>
+            {
+                if (t.AssigneeTeamId.HasValue)
+                    return $"team:{t.AssigneeTeamId.Value}";
+                var firstAssignee = t.Assignees.FirstOrDefault();
+                return firstAssignee != null ? $"user:{firstAssignee.UserId}" : "user:0";
+            })
+            .Where(g => g.Key != "user:0")
+            .Select(g =>
+            {
+                var sample = g.First();
+                if (sample.AssigneeTeamId.HasValue)
+                {
+                    return new AssigneeGroup
+                    {
+                        AssigneeType = "team",
+                        AssigneeId = sample.AssigneeTeamId.Value,
+                        AssigneeName = sample.AssigneeTeam?.Name ?? $"チームID:{sample.AssigneeTeamId.Value}",
+                        Tasks = g.Select(MapToListItem).ToList(),
+                    };
+                }
+                else
+                {
+                    var assignee = sample.Assignees.First();
+                    return new AssigneeGroup
+                    {
+                        AssigneeType = "user",
+                        AssigneeId = assignee.UserId,
+                        AssigneeName = assignee.User?.DisplayName ?? string.Empty,
+                        Tasks = g.Select(MapToListItem).ToList(),
+                    };
+                }
+            })
+            .OrderBy(g => g.AssigneeName)
+            .ToList();
 
         return new DashboardResponse
         {
-            MyTasks = myTaskItems.Select(MapToListItem).ToList(),
-            TeamTasks = teamTaskItems.Select(MapToListItem).ToList(),
+            MyTasks = myTasks,
+            TeamTaskGroups = teamTaskGroups,
         };
     }
 

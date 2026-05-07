@@ -45,6 +45,9 @@ public class TaskService : ITaskService
 
     public async Task<TaskDetailResponse> CreateTaskAsync(CreateTaskRequest request, int currentUserId)
     {
+        if (!request.ParentTaskId.HasValue)
+            ValidateAssignee(request.AssigneeIds, request.AssigneeTeamId);
+
         if (request.ParentTaskId.HasValue)
         {
             var parent = await _taskRepository.GetByIdAsync(request.ParentTaskId.Value)
@@ -61,6 +64,7 @@ public class TaskService : ITaskService
             Priority = request.Priority,
             DueDate = request.DueDate,
             ParentTaskId = request.ParentTaskId,
+            AssigneeTeamId = request.AssigneeTeamId,
             IsRecurring = false,
             CreatedByUserId = currentUserId,
             CreatedAt = DateTime.UtcNow,
@@ -95,6 +99,8 @@ public class TaskService : ITaskService
 
     public async Task<TaskDetailResponse> UpdateTaskAsync(int id, UpdateTaskRequest request, int currentUserId)
     {
+        ValidateAssignee(request.AssigneeIds, request.AssigneeTeamId);
+
         var task = await _taskRepository.GetByIdAsync(id)
             ?? throw new NotFoundException("タスク", id);
 
@@ -107,6 +113,7 @@ public class TaskService : ITaskService
         task.StatusId = request.StatusId;
         task.Priority = request.Priority;
         task.DueDate = request.DueDate;
+        task.AssigneeTeamId = request.AssigneeTeamId;
         task.UpdatedAt = DateTime.UtcNow;
 
         var shareUserIds = request.ShareUserIds.Count == 0
@@ -260,6 +267,18 @@ public class TaskService : ITaskService
         IsRecurring = task.IsRecurring,
     };
 
+    private static void ValidateAssignee(List<int> assigneeIds, int? assigneeTeamId)
+    {
+        var hasUser = assigneeIds.Count > 0;
+        var hasTeam = assigneeTeamId.HasValue;
+
+        if (!hasUser && !hasTeam)
+            throw new Exceptions.ValidationException("担当者（個人またはチーム）は必須です");
+
+        if (hasUser && hasTeam)
+            throw new Exceptions.ValidationException("担当者は個人またはチームのどちらか一方を指定してください");
+    }
+
     private static TaskDetailResponse MapToDetailResponse(TaskItem task) => new()
     {
         Id = task.Id,
@@ -280,6 +299,7 @@ public class TaskService : ITaskService
             Id = a.UserId,
             DisplayName = a.User?.DisplayName ?? string.Empty,
         }).ToList(),
+        AssigneeTeamId = task.AssigneeTeamId,
         Labels = task.TaskLabels.Select(tl => new LabelDto
         {
             Id = tl.LabelId,

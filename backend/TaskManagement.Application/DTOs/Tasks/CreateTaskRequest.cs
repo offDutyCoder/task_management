@@ -22,6 +22,8 @@ public class CreateTaskRequest
 
     public List<int> AssigneeIds { get; set; } = [];
 
+    public int? AssigneeTeamId { get; set; }
+
     public List<int> LabelIds { get; set; } = [];
 
     public List<int> ShareUserIds { get; set; } = [];

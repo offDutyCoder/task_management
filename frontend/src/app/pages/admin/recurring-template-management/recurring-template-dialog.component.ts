@@ -92,7 +92,7 @@ const WEEKDAY_OPTIONS = [
 
         @if (form.controls['frequency'].value === 1) {
           <div class="weekdays-group">
-            <label class="weekdays-label">曜日</label>
+            <span class="weekdays-label">曜日</span>
             <div class="weekdays-checkboxes">
               @for (day of weekdayOptions; track day.value) {
                 <mat-checkbox

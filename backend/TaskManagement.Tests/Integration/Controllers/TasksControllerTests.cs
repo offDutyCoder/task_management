@@ -84,9 +84,12 @@ public class TasksControllerTests : IClassFixture<WebApplicationFactory<Program>
     public async Task POST_Task_WithValidData_ShouldReturn201()
     {
         // Given
+        User? seededUser = null;
         var (client, _) = CreateClientWithSeedData(db =>
         {
-            db.Users.Add(CreateUser("user1"));
+            seededUser = CreateUser("user1");
+            db.Users.Add(seededUser);
+            db.SaveChanges();
         });
 
         var cookie = await AuthTestHelper.LoginAndGetCookieAsync(client, "user1", "password123");
@@ -97,7 +100,7 @@ public class TasksControllerTests : IClassFixture<WebApplicationFactory<Program>
             title = "新規タスク",
             statusId = 1,
             priority = 1,
-            assigneeIds = Array.Empty<int>(),
+            assigneeIds = new[] { seededUser!.Id },
             labelIds = Array.Empty<int>(),
             shareUserIds = Array.Empty<int>(),
         };

@@ -17,6 +17,8 @@ public class TaskItem
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
+    public int? AssigneeTeamId { get; set; }
+
     public TaskStatus Status { get; set; } = null!;
     public TaskItem? ParentTask { get; set; }
     public ICollection<TaskItem> SubTasks { get; set; } = [];
@@ -24,4 +26,5 @@ public class TaskItem
     public ICollection<TaskLabel> TaskLabels { get; set; } = [];
     public ICollection<TaskShare> Shares { get; set; } = [];
     public User CreatedBy { get; set; } = null!;
+    public Team? AssigneeTeam { get; set; }
 }

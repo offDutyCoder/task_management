@@ -61,6 +61,8 @@ builder.Services.AddScoped<ILabelService, LabelService>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<ILabelRequestRepository, LabelRequestRepository>();
 builder.Services.AddScoped<ILabelRequestService, LabelRequestService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
