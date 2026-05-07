@@ -4,6 +4,23 @@
 
 ---
 
+## プロジェクト内のファイル・ドキュメント一覧
+
+| パス | 内容 |
+|---|---|
+| `create_database.sql` | DBとテーブルを一括作成するSQLスクリプト（初期データ含む） |
+| `docs/offline-setup.md` | **このファイル** — オフライン環境セットアップ手順 |
+| `docs/product-requirements.md` | プロダクト要件定義書 |
+| `docs/functional-design.md` | 機能設計書 |
+| `docs/architecture.md` | アーキテクチャ設計書 |
+| `docs/development-guidelines.md` | 開発ガイドライン・コーディング規約 |
+| `docs/repository-structure.md` | リポジトリ構成の説明 |
+| `docs/glossary.md` | 用語集 |
+| `backend/TaskManagement.Api/appsettings.json` | バックエンド設定（DB接続文字列はここを変更） |
+| `frontend/proxy.conf.json` | フロントエンドのAPIプロキシ設定 |
+
+---
+
 ## 前提条件（オフライン PC に確認済みのもの）
 
 | ツール | 備考 |
